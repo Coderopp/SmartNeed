@@ -11,10 +11,9 @@ RUN apt-get update && \
 COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy all necessary project directories
+# Copy necessary project directories
 COPY backend/ ./backend/
 COPY database/ ./database/
-COPY config/ ./config/
 COPY services/ ./services/
 
 # Set the working directory to backend

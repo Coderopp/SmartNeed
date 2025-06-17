@@ -34,6 +34,8 @@ ENV/
 .env
 config/api_keys.env
 config/.env
+# Allow template files
+!config/.env.template
 
 # IDE
 .vscode/
