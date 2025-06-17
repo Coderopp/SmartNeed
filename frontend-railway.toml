@@ -1,0 +1,10 @@
+[build]
+# Frontend build configuration for Railway
+builder = "DOCKERFILE"
+dockerfilePath = "deployment/Dockerfile.frontend"
+
+[deploy]
+# Frontend deployment configuration
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"

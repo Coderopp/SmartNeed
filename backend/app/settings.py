@@ -12,17 +12,24 @@ class Settings:
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "SMARTNEED"
     
-    # CORS
+    # Railway Environment Detection
+    RAILWAY_ENVIRONMENT: bool = os.getenv("RAILWAY_ENVIRONMENT") is not None
+    
+    # CORS - Include Railway domains
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:3001", 
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001"
+        "http://127.0.0.1:3001",
+        # Add Railway frontend domain (will be updated after frontend deployment)
+        "https://*.railway.app",
+        "https://*.up.railway.app"
     ]
     
-    # Database (MongoDB)
+    # Database (MongoDB) - Railway compatible
     MONGODB_URL: str = os.getenv(
         "MONGODB_URL", 
+        "mongodb://localhost:27017/smartneed" if not os.getenv("RAILWAY_ENVIRONMENT") else None
     )
     
     # Database mode - can be forced to mock for testing

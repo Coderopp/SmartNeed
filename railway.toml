@@ -1,0 +1,11 @@
+[build]
+# Use Dockerfile for building
+builder = "DOCKERFILE"
+dockerfilePath = "deployment/Dockerfile.backend"
+
+[deploy]
+# Railway deployment configuration
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
