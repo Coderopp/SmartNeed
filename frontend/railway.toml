@@ -1,7 +1,7 @@
 [build]
 # Frontend build configuration for Railway
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.frontend"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 # Frontend deployment configuration

@@ -62,9 +62,11 @@ MAX_SEARCH_RESULTS=50
 3. Choose the same repository
 4. In the service settings:
    - **Name**: `smartneed-frontend`
-   - **Build Configuration**: Create a new `railway.toml` or specify:
+   - **Root Directory**: `frontend`
+   - **Railway will automatically detect**: `frontend/railway.toml`
+   - **Build Configuration**:
      - Builder: `DOCKERFILE`
-     - Dockerfile Path: `deployment/Dockerfile.frontend`
+     - Dockerfile Path: `Dockerfile` (relative to frontend directory)
 
 ### 6. Configure Frontend Environment Variables
 

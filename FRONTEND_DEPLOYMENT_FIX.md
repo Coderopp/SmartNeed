@@ -11,24 +11,28 @@ This was caused by an incorrect file path in the Railway configuration. Here's h
 
 ## Fixed Files
 
-### 1. Created Root-Level Dockerfile
-**File: `Dockerfile.frontend`** (in project root)
-- Moved from `deployment/Dockerfile.frontend` to root level
-- Simplified configuration for Railway compatibility
-- Removed complex port handling that Railway doesn't need
+### 1. Moved Frontend Files to Frontend Directory
+**Files moved:**
+- `frontend/Dockerfile` (moved from root)
+- `frontend/railway.toml` (moved from root)
 
-### 2. Updated Railway Configuration
-**File: `frontend-railway.toml`**
+### 2. Updated File Paths
+**File: `frontend/railway.toml`**
 ```toml
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.frontend"  # Now points to root level
+dockerfilePath = "Dockerfile"  # Now points to local Dockerfile
 
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 ```
+
+**File: `frontend/Dockerfile`**
+- Updated paths to work from within frontend directory
+- Simplified package copying: `COPY package.json package-lock.json ./`
+- Source copy: `COPY . .`
 
 ## How to Deploy Frontend on Railway Now
 
@@ -46,30 +50,30 @@ git push origin main
 3. **Select "GitHub Repo"**
 4. **Choose your repository**
 5. **Important: Set the service name to something like `smartneed-frontend`**
+6. **Set Root Directory to `frontend`** - This is crucial!
 
 ### Step 3: Configure the Frontend Service
 
 1. **In the service settings, go to "Settings" tab**
-2. **Set the following:**
-   - **Root Directory**: Leave empty (uses project root)
-   - **Build Command**: Will be handled by Dockerfile
-   - **Start Command**: Will be handled by Dockerfile
-
-### Step 4: Use Custom Railway Configuration
-
-Since Railway might not automatically detect `frontend-railway.toml`, you have two options:
-
-#### Option A: Rename Configuration File
-```bash
-# Rename the config file to railway.toml for this service
-mv frontend-railway.toml railway.toml
-```
-
-#### Option B: Manual Configuration in Railway Dashboard
-1. Go to service Settings
-2. Set Build configuration:
+2. **Set the Root Directory to `frontend`**
+3. **Railway will automatically detect the `railway.toml` in the frontend directory**
+4. **Build configuration will be:**
    - **Builder**: Dockerfile
-   - **Dockerfile Path**: `Dockerfile.frontend`
+   - **Dockerfile Path**: `Dockerfile` (relative to frontend directory)
+
+### Step 4: Railway Configuration
+
+Railway will automatically use the `frontend/railway.toml` configuration:
+```toml
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+```
 
 ### Step 5: Set Environment Variables
 
