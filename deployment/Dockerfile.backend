@@ -7,16 +7,14 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc g++ libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Install Python dependencies first
 COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy necessary project directories
-COPY backend/ ./backend/
-COPY database/ ./database/
-COPY services/ ./services/
+# Copy the entire project (Railway builds from project root)
+COPY . .
 
-# Set the working directory to backend
+# Set the working directory to backend for running the app
 WORKDIR /app/backend
 
 EXPOSE 8000
