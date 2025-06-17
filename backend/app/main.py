@@ -12,17 +12,30 @@ import sys
 import os
 from typing import Dict, Any
 
+# Configure logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Add the parent directory to Python path so we can import config
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from app.routers import search, products, export, comparison
-from app.services.gemini_service import GeminiService
 from app.settings import get_settings
-from database.connection import mongodb, get_database
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Try to import optional services
+try:
+    from app.services.gemini_service import GeminiService
+    GEMINI_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Gemini service not available: {e}")
+    GEMINI_AVAILABLE = False
+
+try:
+    from database.connection import mongodb, get_database
+    DATABASE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Database connection not available: {e}")
+    DATABASE_AVAILABLE = False
 
 settings = get_settings()
 
@@ -32,21 +45,27 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting SMARTNEED API...")
     
-    # Initialize database
-    try:
-        await mongodb.connect()
-        logger.info("✅ Database connection established")
-    except Exception as e:
-        logger.error(f"❌ Database initialization failed: {e}")
-        # Don't raise - allow app to start without DB for development
+    # Initialize database if available
+    if DATABASE_AVAILABLE:
+        try:
+            await mongodb.connect()
+            logger.info("✅ Database connection established")
+        except Exception as e:
+            logger.error(f"❌ Database initialization failed: {e}")
+    else:
+        logger.warning("⚠️ Database not available - running without database")
     
-    # Initialize Gemini service
-    try:
-        gemini = GeminiService()
-        app.state.gemini_service = gemini
-        logger.info("✅ Gemini AI service initialized")
-    except Exception as e:
-        logger.warning(f"⚠️ Gemini service initialization failed: {e}")
+    # Initialize Gemini service if available
+    if GEMINI_AVAILABLE:
+        try:
+            gemini = GeminiService()
+            app.state.gemini_service = gemini
+            logger.info("✅ Gemini AI service initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Gemini service initialization failed: {e}")
+            app.state.gemini_service = None
+    else:
+        logger.warning("⚠️ Gemini service not available")
         app.state.gemini_service = None
     
     logger.info("🎯 SMARTNEED API is ready!")
@@ -100,24 +119,30 @@ async def health_check() -> Dict[str, Any]:
         "components": {}
     }
     
-    # Check database
-    try:
-        db = await get_database()
-        # Test database connection with a simple ping
-        await db.command('ping')
-        
-        # Check if using mock database
-        db_status = "healthy"
-        if mongodb.is_mock:
-            db_status = "healthy (mock mode)"
-        
-        health_status["components"]["database"] = db_status
-    except Exception:
-        health_status["components"]["database"] = "unhealthy"
+    # Check database if available
+    if DATABASE_AVAILABLE:
+        try:
+            db = await get_database()
+            # Test database connection with a simple ping
+            await db.command('ping')
+            
+            # Check if using mock database
+            db_status = "healthy"
+            if mongodb.is_mock:
+                db_status = "healthy (mock mode)"
+            
+            health_status["components"]["database"] = db_status
+        except Exception:
+            health_status["components"]["database"] = "unhealthy"
+    else:
+        health_status["components"]["database"] = "not configured"
     
     # Check Gemini service
     gemini_service = getattr(app.state, 'gemini_service', None)
-    health_status["components"]["gemini"] = "healthy" if gemini_service else "unhealthy"
+    if GEMINI_AVAILABLE:
+        health_status["components"]["gemini"] = "healthy" if gemini_service else "unhealthy"
+    else:
+        health_status["components"]["gemini"] = "not configured"
     
     return health_status
 
