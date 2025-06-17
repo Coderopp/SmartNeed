@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile.standalone"
+dockerfilePath = "Dockerfile.simpl3"
 
 [deploy]
 healthcheckPath = "/"
