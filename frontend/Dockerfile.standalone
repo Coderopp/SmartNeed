@@ -1,5 +1,5 @@
-# Simple React frontend Dockerfile - NO backend dependencies
-FROM node:18-alpine as build
+# Pure React - NO Python!
+FROM node:18-alpine as build    # Node.js for React
 
 WORKDIR /app
 
@@ -7,22 +7,19 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install React dependencies
-RUN npm ci
+RUN npm ci                      # Install React deps
 
 # Copy React source code
-COPY . .
+COPY . .                        # React source code
 
 # Build React app
-RUN npm run build
+RUN npm run build              # Build React app
 
-# Serve with nginx
-FROM nginx:alpine
+FROM nginx:alpine              # Serve static files
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Install curl for health checks
 RUN apk add --no-cache curl
-
-# Copy React build to nginx
-COPY --from=build /app/build /usr/share/nginx/html
 
 # Simple nginx config for React
 RUN echo 'server { \
