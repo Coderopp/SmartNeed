@@ -1,0 +1,10 @@
+[build]
+# EMERGENCY: Force frontend deployment
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.frontend.emergency"
+
+[deploy]
+# Frontend deployment
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"

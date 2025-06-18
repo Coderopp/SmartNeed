@@ -1,98 +1,163 @@
-# 🎯 SMARTNEED - AI-Powered Product Recommendation Engine
+# SmartNeed - AI-Powered Product Recommendation Engine
 
-## Overview
-SMARTNEED is an intelligent product discovery platform that uses natural language processing and semantic search to find the perfect products based on user needs, not just keywords.
+A modern monorepo containing both frontend and backend services for an AI-powered product recommendation system.
 
-## 🚀 Recent Updates - MongoDB Implementation
-SMARTNEED has been completely restructured to use MongoDB for better scalability and performance:
+## 🏗️ Monorepo Structure
 
-- ✅ **MongoDB Integration**: Complete migration from PostgreSQL to MongoDB
-- ✅ **Real Data Processing**: Removed mock data, implemented real web scraping
-- ✅ **AI Embeddings**: Vector similarity search with MongoDB collections
-- ✅ **Production Ready**: Clean architecture with proper service separation
-- ✅ **Data Pipeline**: Automated scraping → processing → embedding → search
+```
+smartneed/
+├── frontend/              # React.js frontend application
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── Dockerfile
+│   └── railway.json
+├── backend/               # FastAPI backend application
+│   ├── app/
+│   ├── services/
+│   ├── database/
+│   ├── config/
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── railway.json
+├── docs/                  # Documentation
+├── old-configs/          # Legacy configuration files
+└── railway.json          # Main Railway configuration
+```
 
-## Tech Stack
-- **Frontend**: React + Tailwind CSS
-- **Backend**: Python FastAPI
-- **Database**: MongoDB (with vector embeddings)
-- **AI**: Google Gemini API (embeddings & summaries)
-- **Scraping**: BeautifulSoup + aiohttp for product data collection
-- **Data Processing**: Automated ingestion and validation pipeline
-- **Deployment**: Docker ready with production configuration
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.9+
-- MongoDB (local or MongoDB Atlas)
-- Google Gemini API key
+- Node.js 18+ (for frontend)
+- Python 3.11+ (for backend)
+- Docker (for containerization)
 
-### Installation
+### Local Development
 
-1. **Clone and setup**
-```bash
-cd smartneed
-cp config/api_keys.env.example config/api_keys.env
-# Edit config/api_keys.env with your API keys and MongoDB URL
-```
-
-2. **Initialize MongoDB**
-```bash
-# Install MongoDB locally or use MongoDB Atlas
-# Update MONGODB_URL in config/api_keys.env
-python init_mongodb.py
-```
-
-3. **Backend Setup**
+#### Backend
 ```bash
 cd backend
 pip install -r requirements.txt
-python -m app.main
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-4. **Frontend Setup**
+#### Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
 
-### API Documentation
-- Backend API: http://localhost:8000/docs
-- Frontend: http://localhost:3000
+## 🚢 Railway Deployment
 
-## Project Structure
+This repository is configured for Railway's monorepo deployment pattern. Each service (frontend and backend) can be deployed as separate Railway services within the same project.
+
+### Deployment Steps
+
+1. **Connect Repository to Railway**
+   - Go to [Railway Dashboard](https://railway.app)
+   - Create a new project
+   - Connect your GitHub repository
+
+2. **Deploy Backend Service**
+   - Add a new service to your Railway project
+   - Select "Deploy from GitHub repo"
+   - Set the root directory to `backend`
+   - Railway will automatically detect the `Dockerfile` and `railway.json`
+
+3. **Deploy Frontend Service**
+   - Add another service to the same Railway project
+   - Select "Deploy from GitHub repo"
+   - Set the root directory to `frontend`
+   - Railway will automatically detect the `Dockerfile` and `railway.json`
+
+### Environment Variables
+
+#### Backend Service
+Configure these environment variables in Railway:
+
 ```
-smartneed/
-├── frontend/          # React + Tailwind UI
-├── backend/           # FastAPI backend
-├── data/              # Data processing pipeline
-├── embeddings/        # Vector search engine
-├── sheets/            # Google Sheets integration
-├── scraper/           # Product data collection
-├── config/            # Configuration files
-├── tests/             # Testing suite
-└── deployment/        # Docker & deployment
+GEMINI_API_KEY=your_gemini_api_key
+MONGODB_URL=your_mongodb_connection_string
+CORS_ORIGINS=https://your-frontend-domain.railway.app
+PORT=8000
 ```
 
-## Key Features
-- 🔍 Natural language product search
-- 🤖 AI-powered recommendations
-- 📊 Side-by-side product comparison
-- 📈 Export to Google Sheets
-- 🎯 Budget and constraint optimization
-- 🚀 Semantic search with embeddings
+#### Frontend Service
+Configure these environment variables in Railway:
 
-## Development Phases
-- [x] Phase 1: Foundation & Setup
-- [ ] Phase 2: Core Search Engine
-- [ ] Phase 3: Advanced Features
-- [ ] Phase 4: Polish & Deploy
+```
+REACT_APP_API_URL=https://your-backend-domain.railway.app
+PORT=80
+```
 
-## Contributing
-See CONTRIBUTING.md for development guidelines.
+### Service Communication
 
-## License
-MIT License - see LICENSE file for details.
+The frontend service will communicate with the backend service using the Railway-provided domains. Make sure to:
+
+1. Set the `REACT_APP_API_URL` in the frontend to your backend's Railway domain
+2. Configure `CORS_ORIGINS` in the backend to include your frontend's Railway domain
+
+## 📁 Service Details
+
+### Backend Service
+- **Framework**: FastAPI
+- **Language**: Python 3.11
+- **Database**: MongoDB
+- **AI**: Google Gemini API
+- **Port**: 8000
+- **Health Check**: `/health`
+
+### Frontend Service
+- **Framework**: React.js
+- **Language**: JavaScript
+- **Styling**: Tailwind CSS
+- **Build Tool**: Create React App
+- **Web Server**: Nginx
+- **Port**: 80
+- **Health Check**: `/health`
+
+## 🔧 Configuration Files
+
+### Railway Configuration
+- `railway.json` (root): Main project configuration
+- `backend/railway.json`: Backend service configuration
+- `frontend/railway.json`: Frontend service configuration
+
+### Docker Configuration
+- `backend/Dockerfile`: Backend containerization
+- `frontend/Dockerfile`: Frontend containerization
+
+## 🎯 Features
+
+- **AI-Powered Recommendations**: Uses Google Gemini for intelligent product suggestions
+- **Semantic Search**: Advanced search capabilities using embeddings
+- **Product Comparison**: Side-by-side product analysis
+- **Export Functionality**: Export search results and comparisons
+- **Responsive Design**: Modern, mobile-friendly interface
+- **Real-time Updates**: Fast, interactive user experience
+
+## 🛠️ Development Tools
+
+- **Backend Testing**: FastAPI automatic docs at `/docs`
+- **Frontend Testing**: React Testing Library
+- **Code Quality**: ESLint, Prettier (frontend)
+- **API Documentation**: Swagger/OpenAPI
+
+## 📚 API Documentation
+
+Once deployed, the backend API documentation is available at:
+- Swagger UI: `https://your-backend-domain.railway.app/docs`
+- ReDoc: `https://your-backend-domain.railway.app/redoc`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test both frontend and backend
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.

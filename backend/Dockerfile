@@ -7,17 +7,14 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc g++ libpq-dev curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies first
-COPY backend/requirements.txt .
+# Copy and install Python dependencies
+COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the entire project (Railway builds from project root)
+# Copy application code
 COPY . .
 
-# Set the working directory to backend for running the app
-WORKDIR /app/backend
-
-# Create a simple startup script
+# Create startup script
 RUN echo '#!/bin/bash\n\
 set -e\n\
 echo "Starting SMARTNEED backend..."\n\
@@ -28,10 +25,10 @@ echo "Contents: $(ls -la)"\n\
 exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info\n\
 ' > /app/start.sh && chmod +x /app/start.sh
 
-# Use fixed port for health check (Railway will map it)
+# Expose port
 EXPOSE 8000
 
-# Health check - use fixed port since Railway handles port mapping
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
